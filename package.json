@@ -10,7 +10,7 @@
     "server": "npm --prefix server run dev",
     "export:web": "expo export --platform web",
     "patch:ghpages": "node scripts/patch-ghpages.js",
-    "deploy": "npm run export:web && gh-pages -d dist",
+    "deploy": "npm run export:web && npm run patch:ghpages && gh-pages -d dist",
     "dev": "concurrently --names \"APP,SERVER\" --prefix-colors \"blue,green\" \"npm run web\" \"npm run server\""
   },
   "dependencies": {
