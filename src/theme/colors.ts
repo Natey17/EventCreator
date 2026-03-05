@@ -1,0 +1,39 @@
+export const LightColors = {
+  primary: '#1A73E8',
+  primaryLight: '#E8F0FE',
+  primaryDark: '#1557B0',
+  background: '#F8F9FA',
+  surface: '#FFFFFF',
+  surfaceVariant: '#F1F3F4',
+  text: '#202124',
+  textSecondary: '#5F6368',
+  textDisabled: '#9AA0A6',
+  border: '#DADCE0',
+  divider: '#E8EAED',
+  error: '#D93025',
+  success: '#188038',
+  successLight: '#E6F4EA',
+  overlay: 'rgba(0,0,0,0.48)',
+  shadow: '#000000',
+};
+
+export const DarkColors = {
+  primary: '#8AB4F8',
+  primaryLight: '#1A3A6E',
+  primaryDark: '#A8C7FA',
+  background: '#202124',
+  surface: '#2D2E30',
+  surfaceVariant: '#3C4043',
+  text: '#E8EAED',
+  textSecondary: '#9AA0A6',
+  textDisabled: '#5F6368',
+  border: '#3C4043',
+  divider: '#3C4043',
+  error: '#F28B82',
+  success: '#81C995',
+  successLight: '#1E3A2A',
+  overlay: 'rgba(0,0,0,0.70)',
+  shadow: '#000000',
+};
+
+export type Colors = typeof LightColors;
