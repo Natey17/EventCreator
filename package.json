@@ -8,6 +8,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "server": "npm --prefix server run dev",
+    "export:web": "expo export --platform web",
+    "patch:ghpages": "node scripts/patch-ghpages.js",
+    "deploy": "npm run export:web && gh-pages -d dist",
     "dev": "concurrently --names \"APP,SERVER\" --prefix-colors \"blue,green\" \"npm run web\" \"npm run server\""
   },
   "dependencies": {
@@ -36,6 +39,8 @@
     "@babel/core": "^7.24.0",
     "@types/react": "~18.3.12",
     "concurrently": "^8.2.2",
+    "gh-pages": "^6.3.0",
+    "replace-in-file": "^8.4.0",
     "typescript": "^5.3.0"
   }
 }
