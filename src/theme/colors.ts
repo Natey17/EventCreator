@@ -11,8 +11,11 @@ export const LightColors = {
   border: '#DADCE0',
   divider: '#E8EAED',
   error: '#D93025',
+  errorLight: '#FCE8E6',
   success: '#188038',
   successLight: '#E6F4EA',
+  warning: '#F59E0B',
+  warningLight: '#FEF3C7',
   overlay: 'rgba(0,0,0,0.48)',
   shadow: '#000000',
 };
@@ -30,8 +33,11 @@ export const DarkColors = {
   border: '#3C4043',
   divider: '#3C4043',
   error: '#F28B82',
+  errorLight: '#3C1F1F',
   success: '#81C995',
   successLight: '#1E3A2A',
+  warning: '#FCD34D',
+  warningLight: '#3A2E0A',
   overlay: 'rgba(0,0,0,0.70)',
   shadow: '#000000',
 };

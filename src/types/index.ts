@@ -9,4 +9,9 @@ export type ImportedEvent = {
   notes: string;
   imageUri: string;
   imageName?: string;
+  // Google Calendar fields — present when the event was successfully created in GCal
+  googleEventId?: string;
+  googleCalendarId?: string;
+  googleHtmlLink?: string;
+  importedAt?: string;  // ISO timestamp of successful GCal import
 };

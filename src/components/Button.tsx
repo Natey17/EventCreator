@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   View,
   ViewStyle,
+  Animated,
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { spacing, borderRadius } from '../theme/spacing';
@@ -20,6 +21,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
+  /** Applied to the outer animated wrapper (use for layout: width, maxWidth, margin) */
   style?: ViewStyle;
 }
 
@@ -33,27 +35,44 @@ export function Button({
   style,
 }: ButtonProps) {
   const { colors } = useTheme();
+  const scale = useRef(new Animated.Value(1)).current;
 
   const isDisabled = disabled || loading;
 
-  const containerStyles: ViewStyle[] = [styles.base];
+  const handlePressIn = () => {
+    if (isDisabled) return;
+    Animated.spring(scale, {
+      toValue: 0.96,
+      useNativeDriver: true,
+      speed: 40,
+      bounciness: 4,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 20,
+      bounciness: 8,
+    }).start();
+  };
+
+  const btnStyles: ViewStyle[] = [styles.base];
 
   if (variant === 'primary') {
-    containerStyles.push({ backgroundColor: isDisabled ? colors.border : colors.primary });
+    btnStyles.push({ backgroundColor: isDisabled ? colors.border : colors.primary });
   } else if (variant === 'secondary') {
-    containerStyles.push({
+    btnStyles.push({
       backgroundColor: 'transparent',
       borderWidth: 1.5,
       borderColor: isDisabled ? colors.border : colors.primary,
     });
   } else if (variant === 'ghost') {
-    containerStyles.push({ backgroundColor: 'transparent' });
+    btnStyles.push({ backgroundColor: 'transparent' });
   } else if (variant === 'danger') {
-    containerStyles.push({ backgroundColor: isDisabled ? colors.border : colors.error });
+    btnStyles.push({ backgroundColor: isDisabled ? colors.border : colors.error });
   }
-
-  if (fullWidth) containerStyles.push({ alignSelf: 'stretch' });
-  if (style) containerStyles.push(style);
 
   const textColor =
     variant === 'primary' || variant === 'danger'
@@ -61,22 +80,32 @@ export function Button({
       : isDisabled ? colors.textDisabled : colors.primary;
 
   return (
-    <TouchableOpacity
-      style={containerStyles}
-      onPress={onPress}
-      disabled={isDisabled}
-      activeOpacity={0.75}
+    <Animated.View
+      style={[
+        { transform: [{ scale }] },
+        fullWidth && styles.fullWidth,
+        style,
+      ]}
     >
-      {loading && (
-        <View style={styles.loadingIcon}>
-          <ActivityIndicator
-            size="small"
-            color={variant === 'primary' || variant === 'danger' ? '#FFFFFF' : colors.primary}
-          />
-        </View>
-      )}
-      <Text style={[typography.button, { color: textColor }]}>{title}</Text>
-    </TouchableOpacity>
+      <TouchableOpacity
+        style={[btnStyles, fullWidth && styles.fullWidth]}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={isDisabled}
+        activeOpacity={0.9}
+      >
+        {loading && (
+          <View style={styles.loadingIcon}>
+            <ActivityIndicator
+              size="small"
+              color={variant === 'primary' || variant === 'danger' ? '#FFFFFF' : colors.primary}
+            />
+          </View>
+        )}
+        <Text style={[typography.button, { color: textColor }]}>{title}</Text>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
@@ -89,6 +118,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     minHeight: 52,
+  },
+  fullWidth: {
+    alignSelf: 'stretch',
   },
   loadingIcon: {
     marginRight: spacing.sm,

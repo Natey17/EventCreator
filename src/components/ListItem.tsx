@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ViewStyle, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { spacing, borderRadius } from '../theme/spacing';
 import { typography } from '../theme/typography';
@@ -11,66 +12,80 @@ interface ListItemProps {
   style?: ViewStyle;
 }
 
-function formatDisplayDate(date: string, startTime: string): string {
-  if (!date) return '';
+function parseDateParts(date: string): { month: string; day: string } | null {
+  if (!date) return null;
   try {
-    const d = new Date(`${date}T${startTime || '00:00'}`);
-    return d.toLocaleDateString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    }) + (startTime ? ` · ${startTime}` : '');
+    const d = new Date(`${date}T00:00`);
+    return {
+      month: d.toLocaleDateString(undefined, { month: 'short' }).toUpperCase(),
+      day: d.getDate().toString(),
+    };
   } catch {
-    return date;
+    return null;
   }
+}
+
+function formatTime(startTime: string, endTime: string): string {
+  if (!startTime) return '';
+  return endTime ? `${startTime} – ${endTime}` : startTime;
 }
 
 export function ListItem({ event, onPress, style }: ListItemProps) {
   const { colors } = useTheme();
+  const dateParts = parseDateParts(event.date);
+  const timeStr = formatTime(event.startTime, event.endTime);
 
   return (
     <TouchableOpacity
-      style={[styles.container, { borderBottomColor: colors.divider }, style]}
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+        },
+        style,
+      ]}
       onPress={onPress}
-      activeOpacity={0.6}
+      activeOpacity={0.7}
     >
-      {/* Thumbnail */}
-      <View style={[styles.thumbnailContainer, { backgroundColor: colors.surfaceVariant }]}>
-        {event.imageUri ? (
-          <Image source={{ uri: event.imageUri }} style={styles.thumbnail} resizeMode="cover" />
+      {/* Left: date block */}
+      <View style={[styles.dateBlock, { backgroundColor: colors.primaryLight }]}>
+        {dateParts ? (
+          <>
+            <Text style={[styles.dateMonth, { color: colors.primary }]}>{dateParts.month}</Text>
+            <Text style={[styles.dateDay, { color: colors.primary }]}>{dateParts.day}</Text>
+          </>
         ) : (
-          <View style={styles.thumbnailPlaceholder} />
+          <Ionicons name="calendar-outline" size={20} color={colors.primary} />
         )}
       </View>
 
-      {/* Text content */}
+      {/* Content */}
       <View style={styles.content}>
-        <Text
-          style={[typography.body1, styles.title, { color: colors.text }]}
-          numberOfLines={1}
-        >
+        <Text style={[typography.body1, styles.title, { color: colors.text }]} numberOfLines={1}>
           {event.title || 'Untitled Event'}
         </Text>
-        {(event.date || event.startTime) ? (
-          <Text
-            style={[typography.body2, { color: colors.textSecondary, marginTop: 2 }]}
-            numberOfLines={1}
-          >
-            {formatDisplayDate(event.date, event.startTime)}
+        {timeStr ? (
+          <Text style={[typography.caption, { color: colors.textSecondary, marginTop: 2 }]} numberOfLines={1}>
+            {timeStr}
           </Text>
         ) : null}
         {event.location ? (
-          <Text
-            style={[typography.caption, { color: colors.textSecondary, marginTop: 2 }]}
-            numberOfLines={1}
-          >
+          <Text style={[typography.caption, { color: colors.textSecondary, marginTop: 1 }]} numberOfLines={1}>
             {event.location}
           </Text>
         ) : null}
       </View>
 
-      {/* Chevron */}
-      <Text style={[styles.chevron, { color: colors.textDisabled }]}>›</Text>
+      {/* Trailing */}
+      <View style={styles.trailing}>
+        {event.googleHtmlLink ? (
+          <View style={[styles.gcalBadge, { backgroundColor: colors.primaryLight }]}>
+            <Ionicons name="calendar" size={12} color={colors.primary} />
+          </View>
+        ) : null}
+        <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} style={styles.chevron} />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -79,36 +94,62 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  thumbnailContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: borderRadius.md,
+    marginHorizontal: spacing.md,
+    marginVertical: spacing.xs,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
     overflow: 'hidden',
-    marginRight: spacing.md,
-    flexShrink: 0,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+      },
+      android: { elevation: 1 },
+      web: { boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+    }),
   },
-  thumbnail: {
-    width: '100%',
-    height: '100%',
+  dateBlock: {
+    width: 56,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
   },
-  thumbnailPlaceholder: {
-    width: '100%',
-    height: '100%',
+  dateMonth: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  dateDay: {
+    fontSize: 22,
+    fontWeight: '700',
+    lineHeight: 26,
   },
   content: {
     flex: 1,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
     justifyContent: 'center',
   },
   title: {
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  trailing: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: spacing.sm,
+    gap: spacing.xs,
+  },
+  gcalBadge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chevron: {
-    fontSize: 22,
-    marginLeft: spacing.sm,
-    lineHeight: 26,
+    marginLeft: 2,
   },
 });
