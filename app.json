@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Event Importer",
+    "slug": "event-importer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "event-importer",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.eventimporter.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1A73E8"
+      },
+      "package": "com.eventimporter.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Event Importer to access your photos to import event flyers."
+        }
+      ],
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
